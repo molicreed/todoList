@@ -1,0 +1,54 @@
+* {
+    margin: 0;padding: 0;
+}
+
+#app {
+    margin: 20px auto;
+    width: 900px;
+    border: 1px solid lightgreen;
+    border-width: 0 1px;
+}
+
+#newTask {
+    position:fixed;
+    top: 30%;
+    left: 100px;
+    width: 200px;
+    height: 300px;
+    border: 1px solid;
+}
+
+#newTask h1 {
+    margin: 10px auto;
+}
+#newTask input {
+    width: 100%;
+}
+
+#header {
+    margin: 10px auto;
+    border-bottom: 2px solid green;
+}
+#todos>li {
+    height: 40px;
+    margin-top: 20px;
+    border-bottom: 1px solid;
+    line-height: 40px;
+}
+#todos > li:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+#todos>li .remove {
+    float: right;
+    width: 60px;
+    height: 30px;
+    border-radius: 10px;
+    background-color: orange;
+    color: #fff;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+}

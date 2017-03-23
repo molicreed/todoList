@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <link href="index.css" rel="stylesheet" type="text/css">
+    <title>todoList</title>
+</head>
+<body>
+    <div id="app">
+        <div id="newTask">
+            <h1>添加清单</h1>
+            <input type="text" placeholder="输入待办事项" v-model="newTodo" v-on:keyup.enter="addTodo">
+            <button v-on:click="addTodo">添加</button>
+        </div>
+        <h1 id="header">弄着玩的清单</h1>
+        <ol id="todos">
+            <li v-for="todo in todoList">
+                <input type="checkbox" v-model="todo.done">{{todo.title}}
+                <span>--创建于{{todo.createTime.month}}月</span><span>{{todo.createTime.day}}日</span><span>{{todo.createTime.hour}}时</span><span>{{todo.createTime.minute}}分</span>
+                <span v-if="todo.done">-（已完成）</span>
+                <span v-else></span>
+                <div v-on:click="delTodo(todo)" class="remove">移除</div>
+            </li>
+        </ol>
+    </div>
+    <script src="bundle.js"></script>
+</body>
+</html>
