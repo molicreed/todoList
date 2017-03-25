@@ -3,28 +3,28 @@
 }
 
 #app {
-    margin: 20px auto;
+    margin: 50px auto;
+}
+
+.layout {
     width: 900px;
-    border: 1px solid lightgreen;
-    border-width: 0 1px;
+    margin: 0 auto;
 }
-
-#newTask {
-    position:fixed;
-    top: 30%;
-    left: 100px;
-    width: 200px;
-    height: 300px;
-    border: 1px solid;
+#nav {
+    position: fixed;
+    height: 40px;
+    background-color: #000;
+    opacity: 0.7;
+    top: 0;
+    left: 0;
+    right: 0;
 }
-
-#newTask h1 {
-    margin: 10px auto;
+#nav span {
+    line-height: 40px;
+    color: #fff;
+    margin-right: 20px;
+    cursor: pointer;
 }
-#newTask input {
-    width: 100%;
-}
-
 #header {
     margin: 10px auto;
     border-bottom: 2px solid green;
@@ -34,6 +34,19 @@
     margin-top: 20px;
     border-bottom: 1px solid;
     line-height: 40px;
+}
+#todos>li .todo-title {
+    display: inline-block;
+    width: 400px;
+}
+#todos>li .created-time {
+    font-size: 12px;
+    color: #333;
+}
+#todos>li .done-or-not {
+    display: inline-block;
+    width: 100px;
+    color: #238;
 }
 #todos > li:after {
     content: '';
