@@ -1,59 +1,78 @@
 <template>
-  <div id="app">
-    <div id="nav">
-        <div class="layout">
-            <div class="logIn" v-if="isSignIn">
-                <span>{{user.username}}</span>
-                <span class="btn" v-on:click="logOut">登出</span>
+    <div id="app">
+        <div id="nav">
+            <div class="layout" v-if="isSignIn">
+                <span  class="btn" v-on:click="logOut">登出</span>
             </div>
-            <div class="logOut" v-else>
-                <span class="btn" v-on:click="actionType = 'signUp'">注册</span>
-                <span class="btn" v-on:click="actionType = 'signIn'">登录</span>
+            <div class="layout" v-else>
+                <span class="btn" v-on:click="showSignUp = true">注册</span>
+                <span class="btn" v-on:click="showSignIn = true">登录</span>
             </div>
         </div>
-    </div>
-    <div class="layout">
-      <MyDialog title="注册" 
-            :visible="actionType === 'signUp'" 
-            @close="actionType = 'none'">
-            <SignUpForm @success="initUser($event)"/>
-        </MyDialog>
-        <MyDialog title="登录" 
-            :visible="actionType === 'signIn'" 
-            @close="actionType = 'none'">
-            <SignInForm @success="initUser($event)"/>
-        </MyDialog>
-        <section id="todo"> 
-            <header>
-                <h1 id="header">清单</h1>
-                <div id="newTask">
-                    <input type="text" placeholder="输入待办事项" v-model="newTodo" v-on:keyup.enter="addTodo">
-                    <button v-on:click="addTodo">添加</button>
+        <div class="layout">
+            <el-dialog title="注册" v-model="showSignUp" size="tiny">
+                <SignUpForm @success="initUser" @close="showSignUp = false">
+                </SignUpForm>
+            </el-dialog>
+            <el-dialog title="登录" v-model="showSignIn" size="tiny">
+                <SignInForm @success="initUser" @close = "showSignIn = false">
+                </SignInForm>
+            </el-dialog>
+            <section id="todo"> 
+                <header>
+                    <h1 id="header">Hello {{user.username}}</h1>
+                    <el-form :inline="true">
+                        <el-form-item>
+                            <el-input type="text" placeholder="输入待办事项" v-model="newTodo" v-on:keyup.enter="addTodo" />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" v-on:click="addTodo">添加</el-button>
+                        </el-form-item>
+                    </el-form>
+                </header>       
+                <div id="todos">
+                    <el-row v-for="todo in todoList" :gutter="10" class="grid">
+                        <el-col :xs="2" :sm="2" :md="2" :lg="2">
+                            <div class="grid-content">
+                                <el-checkbox v-model="todo.done" v-on:change="handleTodos"></el-checkbox>
+                            </div>
+                        </el-col>
+                        <el-col :xs="6" :sm="6" :md="6" :lg="6">
+                            <div class="grid-content">
+                                <span class="todo-title">{{todo.title}}</span>
+                            </div>
+                        </el-col>
+                        <el-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <div class="grid-content">
+                                <span class="done-or-not" v-if="todo.done">（已完成）</span>
+                                <span class="done-or-not" v-else> </span>
+                            </div>
+                        </el-col>
+                        <el-col :xs="8" :sm="8" :md="8" :lg="8">
+                            <div class="grid-content">
+                                <span class="created-time">创建于{{todo.createTime.month}}月{{todo.createTime.day}}日{{todo.createTime.hour}}时{{todo.createTime.minute}}分</span>
+                            </div>
+                        </el-col>
+                        <el-col :xs="4" :sm="4" :md="4" :lg="4">
+                            <div class="grid-content">
+                                <el-button v-on:click="delTodo(todo)">移除</el-button>
+                            </div>
+                        </el-col>
+                    </el-row>
                 </div>
-            </header>       
-            <ol id="todos">
-                <li v-for="todo in todoList">
-                    <input type="checkbox" v-model="todo.done" v-on:change="handleTodos">
-                    <span class="todo-title">{{todo.title}}</span>
-                    <span class="done-or-not" v-if="todo.done">（已完成）</span>
-                    <span class="done-or-not" v-else></span>
-                    <span class="created-time">创建于{{todo.createTime.month}}月{{todo.createTime.day}}日{{todo.createTime.hour}}时{{todo.createTime.minute}}分</span>
-                    <div v-on:click="delTodo(todo)" class="remove">移除</div>
-                </li>
-            </ol>
-        </section>
+            </section>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import AV from './lib/leancloud';
-import MyDialog from './components/MyDialog'
 import SignInForm from './components/signInForm'
 import SignUpForm from './components/signUpForm'
 import getAVUser from './lib/getAVUser'
 import saveStorage from './lib/saveStorage'
 import getStorage from './lib/getStorage'
+
 
 
 export default {
@@ -74,7 +93,8 @@ export default {
         //     done: false
         //   }
       ],
-      actionType: 'none',
+      showSignIn: false,
+      showSignUp: false,
       isSignIn: false,
       user: {
         // username: '',
@@ -83,10 +103,10 @@ export default {
       }
     }
   },
-  components: { MyDialog, SignInForm, SignUpForm },
+  components: { SignInForm, SignUpForm},
   created: function() {
     if (AV.User.current()){
-      this.initUser(getAVUser());
+      this.initUser();
       this.readTodos();
     }
   },
@@ -135,11 +155,11 @@ export default {
         this.todoList.splice(index,1);
         this.handleTodos();
     },
-    initUser: function({id,username}){
-        this.isSignIn =true;
-        this.user.id = id;
-        this.user.username = username;
-        this.actionType = 'none';
+    initUser: function(){
+        this.user = getAVUser();
+        this.showSignIn =false;
+        this.showSignUp =false;
+        this.isSignIn = true;
         this.readTodos();
     },
     logOut: function(){
@@ -154,94 +174,59 @@ export default {
 <style lang="scss">
 * {
     margin: 0;padding: 0;
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
-
-#app {
-    margin: 50px auto;
-
+ol,li {
+    list-style: none;
 }
+// #app {
+//     margin: 50px auto;
+
+// }
 
 .layout {
     width: 900px;
     margin: 0 auto;
 }
 #nav {
-    position: fixed;
-    height: 40px;
-    background-color: #000;
-    opacity: 0.7;
-    top: 0;
-    left: 0;
-    right: 0;
-    // z-index: 998;
-    span {
-      color: #fff;
-    }
-    .btn {
-      line-height: 40px;
-      color: #fff;
-      margin-right: 20px;
-      cursor: pointer;
-  }
-}
-#dialogWapper {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  // z-index: 999;
-  background: hsla(0,0,0,0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  #myDialog {
-    width: 300px;
-    height: 200px;
-    background: #fff;
-  }
-}
-#todo {
-    #header {
-        margin: 10px auto;
-        border-bottom: 2px solid green;
-    }
-    #todos {
-        li {
-            height: 40px;
-            margin-top: 20px;
-            border-bottom: 1px solid;
-            line-height: 40px;
-            &:after {
-                content: '';
-                display: block;
-                clear: both;
-            }
-            .todo-title {
-                display: inline-block;
-                width: 400px;
-            }
-            .created-time {
-                font-size: 12px;
-                color: #333;
-            }
-            .done-or-not {
-                display: inline-block;
-                width: 100px;
-                color: #238;
-            }
-            .remove {
-                float: right;
-                width: 60px;
-                height: 30px;
-                border-radius: 10px;
-                background-color: orange;
-                color: #fff;
-                line-height: 30px;
-                text-align: center;
-                cursor: pointer;
+    height: 3.5em;
+    background-color: #20A0FF;
+    .layout {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        .btn {
+            color: #fff;
+            color: #fff;
+            margin-right: 2em;
+            cursor: pointer;
+            font-size: 20px;
+            &:hover {
+                background: #1D8CE0
             }
         }
+    }
+}
+#todo {
+    margin-top: 2em;
+    #header {
+        margin: 1em auto;
+        border-bottom: 2px solid #20A0FF;
+    }
+    #todos {
+        .grid {
+            margin-top: 1em;
+            border-bottom: 1px solid #20A0FF;
+            &:last-of-type {
+                border-bottom: none;
+            }
+            .grid-content {
+                min-height: 3em;
+                display: flex;
+                align-items: center;
+            }
+        }
+        
     }
 }
 
