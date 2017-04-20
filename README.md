@@ -1,5 +1,5 @@
 # todoList
-[预览地址](https://molicreed.github.io/todoList/)
+[预览地址](https://molicreed.github.io/todolist/)
 
 用vue.js实现一个todoList
 
